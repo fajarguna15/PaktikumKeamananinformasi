@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Sistem Nilai: Zero Trust Security
 
 Tugas Praktikum Individu, Keamanan Informasi (KP70065004), Informatika Universitas Siliwangi.
@@ -107,3 +108,6 @@ Atau lihat baris `[AUDIT]` di console gateway.
 - Never trust, always verify: service tetap memeriksa gateway secret dan JWT. Least privilege: default deny. Assume breach: service menolak request tanpa token valid walau datang dari jaringan internal.
 - Password di-hash (bcrypt), refresh token disimpan sebagai hash SHA-256.
 - Untuk produksi: HTTPS/mTLS, secret dari secret manager, dan rate limiting (di luar cakupan tugas ini).
+=======
+# PaktikumKeamananinformasi
+>>>>>>> 8da36c18b76577c9ff3fdb9862e7774f0899452b
