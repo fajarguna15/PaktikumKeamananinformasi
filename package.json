@@ -1,0 +1,23 @@
+{
+  "name": "sistem-nilai-zero-trust",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "seed": "node db/seed.js",
+    "start:gateway": "node gateway/app.js",
+    "start:nilai": "node service-nilai/app.js",
+    "start:transkrip": "node service-transkrip/app.js",
+    "start": "concurrently -n gw,nilai,trans \"npm:start:gateway\" \"npm:start:nilai\" \"npm:start:transkrip\"",
+    "test": "node tests/smoke.js",
+    "logs": "node -e \"const db=require('./db/db'); console.table(db.prepare('SELECT id, waktu, subjek, endpoint, device, hasil, alasan FROM audit_log ORDER BY id DESC LIMIT 15').all())\""
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^11.0.0",
+    "concurrently": "^9.0.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "http-proxy-middleware": "^3.0.0",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

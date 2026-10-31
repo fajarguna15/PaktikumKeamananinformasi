@@ -1,0 +1,821 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7a8b-9c0d-e1f2a3b4c5d6",
+		"name": "Sistem Nilai - Zero Trust Demo",
+		"description": "Koleksi request Postman untuk demo praktikum Zero Trust Security Sistem Nilai (Informatika Universitas Siliwangi). Token login otomatis tersimpan di collection variables.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Autentikasi & Verifikasi Perangkat",
+			"item": [
+				{
+					"name": "1.1 Login Dosen 1 (Berhasil)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var data = pm.response.json();",
+									"    pm.collectionVariables.set('token_dosen1', data.accessToken);",
+									"    pm.collectionVariables.set('refresh_token_dosen1', data.refreshToken);",
+									"    console.log('Token Dosen 1 tersimpan');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Device-ID",
+								"value": "DSN1-LAPTOP"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"dosen1\",\n  \"password\": \"dosen123\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/auth/login",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login berhasil untuk Dosen 1 dengan device resmi DSN1-LAPTOP. Token otomatis disimpan ke variabel {{token_dosen1}}."
+					},
+					"response": []
+				},
+				{
+					"name": "1.2 Login Ditolak - Device Tidak Terdaftar",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Device-ID",
+								"value": "DEVICE-ASING-HACKER"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"dosen1\",\n  \"password\": \"dosen123\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/auth/login",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Membuktikan Zero Trust: Kredensial benar tapi perangkat tidak terdaftar -> 403 Forbidden."
+					},
+					"response": []
+				},
+				{
+					"name": "1.3 Login Mahasiswa 1 (Andi - 2210001)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var data = pm.response.json();",
+									"    pm.collectionVariables.set('token_mhs1', data.accessToken);",
+									"    pm.collectionVariables.set('refresh_token_mhs1', data.refreshToken);",
+									"    console.log('Token Mhs 1 tersimpan');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Device-ID",
+								"value": "MHS1-HP"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"mhs1\",\n  \"password\": \"mhs123\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/auth/login",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login Mahasiswa 1 dengan device MHS1-HP. Token disimpan ke variabel {{token_mhs1}}."
+					},
+					"response": []
+				},
+				{
+					"name": "1.4 Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var data = pm.response.json();",
+									"    pm.collectionVariables.set('token_admin', data.accessToken);",
+									"    console.log('Token Admin tersimpan');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Device-ID",
+								"value": "ADMIN-PC-01"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/auth/login",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login Admin dengan device ADMIN-PC-01. Token disimpan ke variabel {{token_admin}}."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Prinsip Least Privilege (Hak Akses)",
+			"item": [
+				{
+					"name": "2.1 Mahasiswa Lihat Nilai Sendiri (Allowed)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_mhs1}}"
+							},
+							{
+								"key": "X-Device-ID",
+								"value": "MHS1-HP"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/nilai?nim=2210001",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"nilai"
+							],
+							"query": [
+								{
+									"key": "nim",
+									"value": "2210001"
+								}
+							]
+						},
+						"description": "Mahasiswa 1 melihat nilai dirinya sendiri -> 200 OK."
+					},
+					"response": []
+				},
+				{
+					"name": "2.2 Mahasiswa Intip Nilai Teman (Denied 403)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_mhs1}}"
+							},
+							{
+								"key": "X-Device-ID",
+								"value": "MHS1-HP"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/nilai?nim=2210002",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"nilai"
+							],
+							"query": [
+								{
+									"key": "nim",
+									"value": "2210002"
+								}
+							]
+						},
+						"description": "Mahasiswa 1 coba lihat nilai NIM 2210002 -> 403 Forbidden (mahasiswa hanya boleh melihat nilai miliknya)."
+					},
+					"response": []
+				},
+				{
+					"name": "2.3 Mahasiswa Lihat Transkrip Sendiri (Allowed)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_mhs1}}"
+							},
+							{
+								"key": "X-Device-ID",
+								"value": "MHS1-HP"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/transkrip/2210001",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"transkrip",
+								"2210001"
+							]
+						},
+						"description": "Mahasiswa 1 melihat transkrip miliknya sendiri -> 200 OK."
+					},
+					"response": []
+				},
+				{
+					"name": "2.4 Mahasiswa Intip Transkrip Teman (Denied 403)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_mhs1}}"
+							},
+							{
+								"key": "X-Device-ID",
+								"value": "MHS1-HP"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/transkrip/2210002",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"transkrip",
+								"2210002"
+							]
+						},
+						"description": "Mahasiswa 1 coba lihat transkrip teman -> 403 Forbidden."
+					},
+					"response": []
+				},
+				{
+					"name": "2.5 Admin Lihat Transkrip Mahasiswa Siapapun (Allowed)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_admin}}"
+							},
+							{
+								"key": "X-Device-ID",
+								"value": "ADMIN-PC-01"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/transkrip/2210002",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"transkrip",
+								"2210002"
+							]
+						},
+						"description": "Admin diizinkan melihat transkrip mahasiswa manapun -> 200 OK."
+					},
+					"response": []
+				},
+				{
+					"name": "2.6 Admin Coba Akses Nilai Mentah (Denied 403)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_admin}}"
+							},
+							{
+								"key": "X-Device-ID",
+								"value": "ADMIN-PC-01"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/nilai?kelas_id=1",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"nilai"
+							],
+							"query": [
+								{
+									"key": "kelas_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Least Privilege: Admin hanya boleh melihat transkrip, bukan data nilai mentah kelas -> 403 Forbidden."
+					},
+					"response": []
+				},
+				{
+					"name": "2.7 Dosen 1 Lihat Nilai Kelas yang Diampu (Allowed)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_dosen1}}"
+							},
+							{
+								"key": "X-Device-ID",
+								"value": "DSN1-LAPTOP"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/nilai?kelas_id=1",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"nilai"
+							],
+							"query": [
+								{
+									"key": "kelas_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Dosen 1 mengampu kelas 1 (Keamanan Informasi) -> 200 OK."
+					},
+					"response": []
+				},
+				{
+					"name": "2.8 Dosen 1 Intip Kelas Dosen Lain (Denied 403)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_dosen1}}"
+							},
+							{
+								"key": "X-Device-ID",
+								"value": "DSN1-LAPTOP"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/nilai?kelas_id=2",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"nilai"
+							],
+							"query": [
+								{
+									"key": "kelas_id",
+									"value": "2"
+								}
+							]
+						},
+						"description": "Dosen 1 coba lihat kelas 2 (diampu Dosen 2) -> 403 Forbidden (bukan kelas yang diampu)."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Prinsip Assume Breach (Bypass Gateway Ditolak)",
+			"item": [
+				{
+					"name": "3.1 Tembak Langsung Service Nilai :3001 (Denied 403)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{nilai_url}}/nilai?nim=2210001",
+							"host": [
+								"{{nilai_url}}"
+							],
+							"path": [
+								"nilai"
+							],
+							"query": [
+								{
+									"key": "nim",
+									"value": "2210001"
+								}
+							]
+						},
+						"description": "Membuktikan prinsip Assume Breach: Port service tidak bisa diakses langsung karena wajib memiliki X-Gateway-Secret."
+					},
+					"response": []
+				},
+				{
+					"name": "3.2 Tembak Langsung Service Transkrip :3002 (Denied 403)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{transkrip_url}}/transkrip/2210001",
+							"host": [
+								"{{transkrip_url}}"
+							],
+							"path": [
+								"transkrip",
+								"2210001"
+							]
+						},
+						"description": "Membuktikan prinsip Assume Breach: Service transkrip menolak akses tanpa gateway secret."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Ubah Nilai & Finalisasi",
+			"item": [
+				{
+					"name": "4.1 Dosen 1 Ubah Nilai Kelas Sendiri (Allowed)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_dosen1}}"
+							},
+							{
+								"key": "X-Device-ID",
+								"value": "DSN1-LAPTOP"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nilai\": 95\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/nilai/1",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"nilai",
+								"1"
+							]
+						},
+						"description": "Dosen 1 mengubah nilai id 1 (milik kelas 1 yang diampunya) menjadi 95 -> 200 OK."
+					},
+					"response": []
+				},
+				{
+					"name": "4.2 Dosen 1 Coba Ubah Nilai Kelas Dosen 2 (Denied 403)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_dosen1}}"
+							},
+							{
+								"key": "X-Device-ID",
+								"value": "DSN1-LAPTOP"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nilai\": 90\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/nilai/4",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"nilai",
+								"4"
+							]
+						},
+						"description": "Dosen 1 coba ubah nilai id 4 (kelas 2) -> 403 Forbidden (bukan kelas yang diampu)."
+					},
+					"response": []
+				},
+				{
+					"name": "4.3 Dosen 1 Finalisasi Kelas 1 (Sinkron ke Transkrip)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_dosen1}}"
+							},
+							{
+								"key": "X-Device-ID",
+								"value": "DSN1-LAPTOP"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/kelas/1/finalisasi",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"kelas",
+								"1",
+								"finalisasi"
+							]
+						},
+						"description": "Dosen 1 finalisasi kelas 1. Service Nilai secara otomatis memanggil Service Transkrip lewat Gateway menggunakan Token Service -> 200 OK."
+					},
+					"response": []
+				},
+				{
+					"name": "4.4 Coba Ubah Nilai Setelah Finalisasi (Denied 403)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_dosen1}}"
+							},
+							{
+								"key": "X-Device-ID",
+								"value": "DSN1-LAPTOP"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nilai\": 75\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/nilai/1",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"nilai",
+								"1"
+							]
+						},
+						"description": "Nilai yang sudah final dikunci tidak dapat diubah lagi -> 403 Forbidden (nilai sudah final)."
+					},
+					"response": []
+				},
+				{
+					"name": "4.5 Mahasiswa Cek Transkrip Terupdate",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_mhs1}}"
+							},
+							{
+								"key": "X-Device-ID",
+								"value": "MHS1-HP"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/transkrip/2210001",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"transkrip",
+								"2210001"
+							]
+						},
+						"description": "Mahasiswa melihat transkripnya sekarang sudah terisi nilai Keamanan Informasi (95) hasil finalisasi!"
+					},
+					"response": []
+				},
+				{
+					"name": "4.6 User Coba Tembak Endpoint Sinkron Service (Denied 403)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token_dosen1}}"
+							},
+							{
+								"key": "X-Device-ID",
+								"value": "DSN1-LAPTOP"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"kelas_id\": 1,\n  \"items\": []\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/transkrip/sinkron",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"transkrip",
+								"sinkron"
+							]
+						},
+						"description": "User biasa / dosen dilarang memanggil /transkrip/sinkron secara langsung. Endpoint ini khusus token service internal."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. Refresh Token & Logout",
+			"item": [
+				{
+					"name": "5.1 Refresh Token (Dapatkan Access Token Baru)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"{{refresh_token_mhs1}}\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/auth/refresh",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"auth",
+								"refresh"
+							]
+						},
+						"description": "Memperbarui token JWT tanpa perlu login ulang."
+					},
+					"response": []
+				},
+				{
+					"name": "5.2 Logout (Mencabut Refresh Token)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"{{refresh_token_mhs1}}\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/auth/logout",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Logout akan mencabut status refresh token di database."
+					},
+					"response": []
+				},
+				{
+					"name": "5.3 Refresh Ditolak Setelah Logout (Revoked 401)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"{{refresh_token_mhs1}}\"\n}"
+						},
+						"url": {
+							"raw": "{{gateway_url}}/auth/refresh",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"auth",
+								"refresh"
+							]
+						},
+						"description": "Membuktikan token yang sudah dicabut tidak bisa digunakan lagi -> 401 Unauthorized."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "gateway_url",
+			"value": "http://localhost:3000"
+		},
+		{
+			"key": "nilai_url",
+			"value": "http://localhost:3001"
+		},
+		{
+			"key": "transkrip_url",
+			"value": "http://localhost:3002"
+		},
+		{
+			"key": "token_dosen1",
+			"value": ""
+		},
+		{
+			"key": "refresh_token_dosen1",
+			"value": ""
+		},
+		{
+			"key": "token_mhs1",
+			"value": ""
+		},
+		{
+			"key": "refresh_token_mhs1",
+			"value": ""
+		},
+		{
+			"key": "token_admin",
+			"value": ""
+		}
+	]
+}

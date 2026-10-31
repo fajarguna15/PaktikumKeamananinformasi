@@ -1,0 +1,9 @@
+DROP TABLE IF EXISTS audit_log; DROP TABLE IF EXISTS refresh_tokens; DROP TABLE IF EXISTS transkrip;
+DROP TABLE IF EXISTS nilai; DROP TABLE IF EXISTS kelas; DROP TABLE IF EXISTS devices; DROP TABLE IF EXISTS users;
+CREATE TABLE users(id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, nama TEXT, role TEXT NOT NULL CHECK(role IN ('mahasiswa','dosen','admin')), password_hash TEXT NOT NULL, nim TEXT UNIQUE);
+CREATE TABLE devices(id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id), device_id TEXT NOT NULL, UNIQUE(user_id, device_id));
+CREATE TABLE kelas(id INTEGER PRIMARY KEY, nama TEXT NOT NULL, dosen_id INTEGER NOT NULL REFERENCES users(id));
+CREATE TABLE nilai(id INTEGER PRIMARY KEY, kelas_id INTEGER NOT NULL REFERENCES kelas(id), nim TEXT NOT NULL, nilai REAL NOT NULL, status TEXT NOT NULL DEFAULT 'draft' CHECK(status IN ('draft','final')));
+CREATE TABLE transkrip(id INTEGER PRIMARY KEY, nim TEXT NOT NULL, kelas_id INTEGER NOT NULL, nilai REAL NOT NULL, UNIQUE(nim, kelas_id));
+CREATE TABLE refresh_tokens(id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, token_hash TEXT UNIQUE NOT NULL, expires_at INTEGER NOT NULL, revoked INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE audit_log(id INTEGER PRIMARY KEY, waktu TEXT NOT NULL, subjek TEXT NOT NULL, endpoint TEXT NOT NULL, device TEXT, hasil TEXT NOT NULL, alasan TEXT);
